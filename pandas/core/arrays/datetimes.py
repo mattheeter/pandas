@@ -138,14 +138,27 @@ def _field_accessor(name: str, field: str, docstring: str | None = None):
         if field in self._bool_ops:
             result: np.ndarray
 
-            if field.endswith(("start", "end")):
+            if field.endswith("start"):
                 freq = self.freq
-                month_kw = 12  # Default to December, but doesn't distinguish between start or end
+                month_kw = 1
                 if freq:
                     kwds = freq.kwds
                     month_kw = kwds.get(
-                        "startingMonth", kwds.get("month", 12)
-                    )  # Gets the "startingMonth" if it exists, otherwise it returns 12
+                        "startingMonth", kwds.get("startingMonth", month_kw)
+                    )
+
+                result = fields.get_start_end_field(
+                    values, field, self.freqstr, month_kw, reso=self._creso
+                )
+
+            elif field.endswith("end"):
+                freq = self.freq
+                month_kw = 12
+                if freq:
+                    kwds = freq.kwds
+                    month_kw = kwds.get(
+                        "startingMonth", kwds.get("startingMonth", month_kw)
+                    )
 
                 result = fields.get_start_end_field(
                     values, field, self.freqstr, month_kw, reso=self._creso
